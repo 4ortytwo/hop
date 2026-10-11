@@ -1,3 +1,4 @@
+import './helpers/provider-env.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -132,7 +133,7 @@ test('任务名：去掉往返交接的后缀，没标题时取首句用户输�
 
 test('launch：claude 带 --name，codex 把任务名放进 prompt', () => {
   const cc = buildScript({ to: 'claude', cwd: '/repo', handoff: '/h.md', task: '登录重构', from: 'Codex', extra: ['--model', 'x'] });
-  assert.match(cc, /'--name' '登录重构(（接自 Codex）|\(from Codex\))' '--model' 'x'/);
+  assert.match(cc, /'--name' '登录重构(（接自 Codex）| \(from Codex\))' '--model' 'x'/);
   assert.match(cc, /登录重构/);
   const cx = buildScript({ to: 'codex', cwd: '/repo', handoff: '/h.md', task: '登录重构', from: 'Claude Code' });
   assert.doesNotMatch(cx, /--name/);
