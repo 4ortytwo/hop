@@ -4,16 +4,16 @@ This repository independently maintains the [4ortytwo/hop fork](https://github.c
 
 ## Development setup
 
-Use Node.js 22 or 24. Clone the fork for local development:
+Use Node.js 22 or 24. Clone the maintenance branch for local development:
 
 ```bash
-git clone https://github.com/4ortytwo/hop.git
+git clone --branch feat/maintained-release https://github.com/4ortytwo/hop.git
 cd hop
 node bin/hop.mjs --help
 npm test
 ```
 
-The maintenance changes are an unreleased local candidate; cloning the remote default branch does not imply it contains those changes. From a checkout containing the maintenance candidate, also run:
+The maintenance changes are an unpublished candidate on `feat/maintained-release`; `main` does not yet contain them. From this maintenance checkout, also run:
 
 ```bash
 npm run check:package
@@ -21,7 +21,7 @@ npm run check:package
 
 There are no npm runtime dependencies. See the READMEs for optional Git, `lsof`, and `sqlite3` enrichment and Bash requirements for CLI launching.
 
-`npm test` exercises synthetic provider records and CLI behavior. `npm run check:package` checks the distributable package and its installed CLI using fixtures. The candidate's configured hosted CI matrix uses macOS and Linux with Node.js 22 and 24; those hosted runs have not yet been performed. A configured workflow is not evidence that a hosted run passed; fixture checks do not validate a real desktop app's URL handler or the prompts it opens.
+`npm test` exercises synthetic provider records and CLI behavior. `npm run check:package` checks the distributable package and its installed CLI using fixtures. [Hosted CI for revision `c42c1ee`](https://github.com/4ortytwo/hop/actions/runs/38647069022) passed all four macOS/Linux and Node.js 22/24 jobs, each with 126 synthetic tests and package checks. This establishes fixture and package behavior for that revision; these checks do not validate real desktop URL handlers or execution of real target CLIs.
 
 ## Changes and meaningful checks
 
@@ -33,7 +33,7 @@ Run checks relevant to the change and report their actual results. If a platform
 
 ## Reports and privacy
 
-Use [fork Issues](https://github.com/4ortytwo/hop/issues) for routine support reports when enabled. Do not assume a private disclosure channel is available; use [SECURITY.md](SECURITY.md) for vulnerability reports.
+Use [fork Issues](https://github.com/4ortytwo/hop/issues) for routine support reports. Private vulnerability reporting is enabled; use [SECURITY.md](SECURITY.md) for the private reporting link and fallback guidance.
 
 When a reporting channel is available, include the Hop version, Node version, operating system, source and target client types, a minimal synthetic reproduction, and expected versus observed behavior. Include application versions when relevant. Remove personal paths, account and session identifiers, private repository names, secrets, and transcript contents from command output. Raw captures, agent bundles, provider databases, and desktop screenshots should not be attached by default. Prefer a synthetic fixture that reproduces the issue.
 
@@ -41,4 +41,4 @@ When a reporting channel is available, include the Hop version, Node version, op
 
 Release preparation may run tests, package checks, and CI. None of these checks publishes automatically. Before publication, a human must review the exact package archive, source revision, package name and ownership, registry metadata, installation instructions, changelog, and all other public text. Rebuild and re-review the package if any reviewed input changes.
 
-The release checklist also includes enabling fork Issues and verifying a private vulnerability reporting route before documenting either as available. Retain the upstream license and distinguish this fork's support claims from upstream behavior. No registry publication should proceed while package ownership or that review is unresolved.
+The release checklist also includes confirming that fork Issues and the private vulnerability reporting route remain available, and updating candidate branch links and checkout instructions if the maintenance changes are promoted to `main`. Retain the upstream license and distinguish this fork's support claims from upstream behavior. No registry publication should proceed while package ownership or that review is unresolved.

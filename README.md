@@ -33,7 +33,7 @@ The `!` prefix runs a shell command without calling the model, so it works even 
 
 - Node.js ≥ 22; the supported LTS lines are Node.js 22 and 24
 - macOS for Terminal.app/iTerm2 launching and desktop app launching
-- Linux `--here` (with Bash) and `--dry-run` are intended to be supported. Linux fixture CI is configured but has not yet run for this candidate; desktop launching and new terminal tabs require macOS. Native Windows is unsupported.
+- Linux `--here` (with Bash) and `--dry-run` are intended support paths. Linux synthetic fixture and packaged CLI checks have passed on Node.js 22 and 24; desktop launching and new terminal tabs require macOS. Native Windows is unsupported.
 - For the default CLI launch, the target CLI must be installed and on `PATH`. For `--desktop`, install the target desktop app; its CLI does not need to be installed. Source transcripts must be available locally.
 
 There are no npm runtime dependencies. External tools provide these capabilities:
@@ -45,7 +45,7 @@ There are no npm runtime dependencies. External tools provide these capabilities
 | `lsof` | Optional discovery of listening processes; if unavailable or blocked, the listener list can be empty and must not be treated as proof that no server is running. |
 | `sqlite3` | Optional lookup of Codex titles absent from the session index; missing metadata does not hide local sessions. |
 
-Provider session formats and desktop URL handlers can change independently of Hop. Fixture checks cover local parsing and command construction; they do not establish compatibility with every installed app version.
+Provider session formats and desktop URL handlers can change independently of Hop. Synthetic fixture and package checks have passed in hosted CI on macOS and Linux with Node.js 22 and 24. These checks cover local parsing and command construction; they do not validate real desktop URL handlers or execution of real target CLIs.
 
 ## Install
 
@@ -192,7 +192,7 @@ The original session is left untouched. `hop` prints a native return link for Co
 
 ## What gets carried over
 
-Generated handoffs and raw evidence can contain source code, prompts, tool output, secrets, and local identifiers. Keep captures private and review them before sharing or sending a draft to another provider. File permissions are access controls, not encryption. `--dry-run` still writes a capture. See [SECURITY.md](SECURITY.md) for reporting guidance.
+Generated handoffs and raw evidence can contain source code, prompts, tool output, secrets, and local identifiers. Keep captures private and review them before sharing or sending a draft to another provider. File permissions are access controls, not encryption. `--dry-run` still writes a capture. See [SECURITY.md](https://github.com/4ortytwo/hop/blob/feat/maintained-release/SECURITY.md) for reporting guidance.
 
 The handoff document is Markdown and contains:
 
@@ -251,7 +251,7 @@ Both session formats are private and undocumented, and either tool may change th
 
 ## Development
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, synthetic fixtures, package checks, and release review policy.
+See [CONTRIBUTING.md](https://github.com/4ortytwo/hop/blob/feat/maintained-release/CONTRIBUTING.md) for setup, synthetic fixtures, package checks, and release review policy.
 
 ```bash
 npm test

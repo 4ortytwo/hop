@@ -33,7 +33,7 @@ Codex 做到一半，遇到限流、额度用完或者卡在死循环里，想�
 
 - Node.js ≥ 22；支持的 LTS 系列为 Node.js 22 和 24
 - 打开 Terminal.app/iTerm2 或桌面应用需要 macOS
-- 计划支持 Linux 的 `--here`（需要 Bash）和 `--dry-run`。本候选版本已配置 Linux 合成测试 CI，但尚未运行；桌面应用和新终端标签页启动需要 macOS。原生 Windows 不受支持。
+- 计划支持 Linux 的 `--here`（需要 Bash）和 `--dry-run`。Linux 合成测试及打包后的 CLI 检查已在 Node.js 22 和 24 上通过；桌面应用和新终端标签页启动需要 macOS。原生 Windows 不受支持。
 - 默认模式需要把目标 CLI 安装到 `PATH`；`--desktop` 只需安装目标桌面应用，不需要安装对应 CLI。源会话记录必须在本机。
 
 没有 npm 运行时依赖。以下外部工具提供对应能力：
@@ -45,7 +45,7 @@ Codex 做到一半，遇到限流、额度用完或者卡在死循环里，想�
 | `lsof` | 可选，用于发现监听端口的进程；工具缺失或受限时列表可能为空，不能据此断定没有服务器在运行。 |
 | `sqlite3` | 可选，用于查找会话索引里缺少的 Codex 标题；元数据缺失不会隐藏本地会话。 |
 
-Provider 的会话格式和桌面 URL 处理程序可能独立于 Hop 发生变化。合成测试验证本地解析和命令构造，不代表兼容每一个已安装的应用版本。
+Provider 的会话格式和桌面 URL 处理程序可能独立于 Hop 发生变化。合成测试和包检查已在 macOS、Linux 的托管 CI 上通过，均覆盖 Node.js 22 和 24。这些检查验证本地解析和命令构造；并不验证真实桌面 URL 处理程序或真实目标 CLI 的执行。
 
 ## 安装
 
@@ -192,7 +192,7 @@ hop codex --session local_example --desktop --no-git
 
 ## 交接文档里有什么
 
-生成的交接和原始证据可能包含源代码、提示词、工具输出、秘密和本地标识信息。请私密保存，并在分享或向另一个 provider 发送草稿前检查内容。文件权限是访问控制，不是加密；`--dry-run` 仍会写入交接。问题报告指南见 [SECURITY.md](SECURITY.md)。
+生成的交接和原始证据可能包含源代码、提示词、工具输出、秘密和本地标识信息。请私密保存，并在分享或向另一个 provider 发送草稿前检查内容。文件权限是访问控制，不是加密；`--dry-run` 仍会写入交接。问题报告指南见 [SECURITY.md](https://github.com/4ortytwo/hop/blob/feat/maintained-release/SECURITY.md)。
 
 - **给接手 agent 的说明**：先读子 agent 索引，复述当前状态（包括未完成的委派任务）后等待确认；复用已有结果，修改相关文件前先读对应任务上下文；需要细节时 grep 原始记录；不要 reset 未提交的改动；之前定下的约束继续有效。重新创建未完成任务前，先确认源 agent 已停止修改相同文件。
 - **未解决的失败**：源会话里最后一次运行仍失败（退出码非 0，或执行到一半被打断）的 shell 命令，附退出码、轮次、时间、目录和输出末尾。只收测试/构建/检查类命令，以及最后一轮里的失败；后来跑通的、grep/diff 这类返回 1 的都排除。新 agent 会被要求先重跑：还失败就是要接着修的问题，已通过说明这条过期了。这一节不参与压缩。
@@ -247,7 +247,7 @@ Git 快照禁用文件系统监控钩子、内容过滤器、外部 diff 工具�
 
 ## 开发
 
-开发环境、合成测试、包检查和发布审核策略见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+开发环境、合成测试、包检查和发布审核策略见 [CONTRIBUTING.md](https://github.com/4ortytwo/hop/blob/feat/maintained-release/CONTRIBUTING.md)。
 
 ```bash
 npm test

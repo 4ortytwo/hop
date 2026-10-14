@@ -25,5 +25,5 @@ This changelog covers the independently maintained [4ortytwo/hop fork](https://g
 
 - Desktop drafts do not send prompts or migrate live agents. App URL handlers and private session formats may change.
 - Encrypted delegated assignments cannot be decrypted or guaranteed recoverable. Recorded status is historical evidence, not proof of a live agent's state.
-- Linux `--here` with Bash and `--dry-run` are intended support paths, with synthetic-fixture CI configured but not yet run for this candidate. New-tab and desktop launching require macOS; native Windows is unsupported.
-- Fixture checks and a configured CI matrix do not establish real desktop compatibility or a successful hosted CI run. No npm registry release is announced by this unreleased entry.
+- Linux `--here` with Bash and `--dry-run` are intended support paths. Synthetic fixture and packaged CLI checks have passed in hosted CI on macOS and Linux with Node.js 22 and 24. New-tab and desktop launching require macOS; native Windows is unsupported.
+- Passing synthetic fixture and package checks does not establish real desktop URL handling or execution of real target CLIs. No npm registry release is announced by this unreleased entry.
