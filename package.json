@@ -1,24 +1,30 @@
 {
-  "name": "hop",
-  "version": "0.1.0",
-  "description": "Hand off an in-progress task between Codex and Claude Code without losing context",
+  "name": "@4ortytwo/hop",
+  "version": "0.2.0",
+  "description": "Carry task context and subagent evidence between Codex and Claude Code",
   "type": "module",
   "bin": {
     "hop": "bin/hop.mjs"
   },
-  "files": ["bin", "lib"],
+  "files": ["bin", "lib", "README.zh-CN.md", "CHANGELOG.md"],
   "scripts": {
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/*.test.mjs",
+    "check:package": "node scripts/check-package.mjs",
+    "check": "npm test && npm run check:package"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "keywords": ["codex", "claude-code", "ai-agent", "handoff", "cli"],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/0genlab/hop.git"
+    "url": "git+https://github.com/4ortytwo/hop.git"
   },
-  "homepage": "https://github.com/0genlab/hop#readme",
+  "homepage": "https://github.com/4ortytwo/hop#readme",
+  "bugs": "https://github.com/4ortytwo/hop/issues",
   "license": "MIT",
-  "private": true
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
 }

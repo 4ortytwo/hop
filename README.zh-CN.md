@@ -1,6 +1,10 @@
 # hop
 
-在 **Codex** 和 **Claude Code** 之间交接正在做的任务，不丢上下文。
+在 **Codex** 和 **Claude Code** 之间交接正在做的任务，并携带本地上下文。
+
+本仓库是 [0genlab/hop](https://github.com/0genlab/hop) 的独立维护分支 [4ortytwo/hop](https://github.com/4ortytwo/hop)。本分支的维护和发布计划在这里跟踪；保留原项目及其 MIT 作者归属。相关的上游贡献见 [PR #6](https://github.com/0genlab/hop/pull/6)。
+
+0.2.0 目前是尚未发布的维护候选版本。范围和限制见 [CHANGELOG.md](CHANGELOG.md)。
 
 ```bash
 hop cc       # Codex → Claude Code
@@ -27,25 +31,49 @@ Codex 做到一半，遇到限流、额度用完或者卡在死循环里，想�
 
 ## 环境要求
 
-- macOS（打开终端新标签页或启动桌面应用需要；`--here` 和 `--dry-run` 在哪都能用）
-- Node.js ≥ 20
+- Node.js ≥ 22；支持的 LTS 系列为 Node.js 22 和 24
+- 打开 Terminal.app/iTerm2 或桌面应用需要 macOS
+- 计划支持 Linux 的 `--here`（需要 Bash）和 `--dry-run`。本候选版本已配置 Linux 合成测试 CI，但尚未运行；桌面应用和新终端标签页启动需要 macOS。原生 Windows 不受支持。
 - 默认模式需要把目标 CLI 安装到 `PATH`；`--desktop` 只需安装目标桌面应用，不需要安装对应 CLI。源会话记录必须在本机。
 
-没有任何 npm 依赖。
+没有 npm 运行时依赖。以下外部工具提供对应能力：
+
+| 工具 | 何时需要 |
+|---|---|
+| Bash | 启动 CLI，包括 `--here` |
+| Git | 从 GitHub 安装、按仓库匹配会话和记录 Git 快照；没有 Git 也能生成交接。`--no-git` 可显式跳过 Git 匹配和快照。 |
+| `lsof` | 可选，用于发现监听端口的进程；工具缺失或受限时列表可能为空，不能据此断定没有服务器在运行。 |
+| `sqlite3` | 可选，用于查找会话索引里缺少的 Codex 标题；元数据缺失不会隐藏本地会话。 |
+
+Provider 的会话格式和桌面 URL 处理程序可能独立于 Hop 发生变化。合成测试验证本地解析和命令构造，不代表兼容每一个已安装的应用版本。
 
 ## 安装
 
+维护版本的 npm 包名为 `@4ortytwo/hop`，可执行命令仍为 `hop`。首个版本正在准备中，尚未发布。在包含本候选版本且已审查的本地检出目录中安装：
+
 ```bash
-git clone https://github.com/0genlab/hop.git ~/code/hop
-ln -s ~/code/hop/bin/hop.mjs ~/.local/bin/hop   # 换成你 PATH 里的任意目录
+npm install -g .
 hop --help
 ```
 
-也可以用 npm 全局安装：
+首个 npm 版本发布后，选择一个包管理器进行全局安装：
+
+| 包管理器 | 命令 |
+|---|---|
+| npm | `npm install -g @4ortytwo/hop` |
+| [Bun](https://bun.sh/docs/pm/cli/add#--global) | `bun add -g @4ortytwo/hop` |
+| [pnpm](https://pnpm.io/cli/add#--global--g) | `pnpm add -g @4ortytwo/hop` |
+| [Yarn Classic（1.x）](https://classic.yarnpkg.com/en/docs/cli/global) | `yarn global add @4ortytwo/hop` |
+
+所选包管理器的全局可执行文件目录需要在 `PATH` 中。使用 Bun 安装不会改变 Hop 的运行时：仍然需要 Node.js 22 或更新版本。
+
+[新版 Yarn（2+）](https://yarnpkg.com/cli/dlx) 使用 `dlx` 临时执行，而不是全局安装。例如：
 
 ```bash
-npm install -g github:0genlab/hop
+YARN_NODE_LINKER=node-modules yarn dlx --package @4ortytwo/hop hop --help
 ```
+
+该命令仅运行一次 Hop，不会在 `PATH` 中保留永久的 `hop` 命令。
 
 ## 使用手册
 
@@ -58,13 +86,13 @@ hop cc        # 在 Claude Code 里接着做这个目录最近的 Codex 会话
 hop codex     # 在 Codex 里接着做这个目录最近的 Claude Code 会话
 ```
 
-`hop` 会先打印它选中了什么：
+`hop` 会先打印它选中了什么。以下为合成示例：
 
 ```
-源会话   Codex 019a…（当前目录）
-工作目录 /Users/you/code/app/.worktrees/fix-login  [fix-login]
-交接文档 ~/.hop/handoffs/20260923-101500-codex-to-claude.md（12 轮，31.8 KB）
-切回原会话 codex resume 019a…
+源会话   Codex session-example（当前目录 /path/to/demo）
+工作目录 /path/to/demo/.worktrees/example  [example]
+交接文档 ~/.hop/handoffs/<capture-stem>.md（12 轮，31.8 KB）
+切回原会话 codex resume session-example
 ```
 
 然后开新标签页启动目标 agent，首条指令是：
@@ -96,8 +124,8 @@ Claude Desktop 会把链接里的文件夹当作不可信路径，要求你先�
 
 ```bash
 hop cc --list                  # 显示会话 ID、客户端、工作目录和可用标题
-hop cc --session 019a1b2c-…    # 按会话 ID 指定，也可以直接给 .jsonl 路径
-hop codex --session local_abc123  # Claude Desktop 源会话 ID
+hop cc --session session-example  # 合成 ID；替换为你的会话 ID 或 .jsonl 路径
+hop codex --session local_example # 合成 Claude Desktop 源会话 ID
 hop cc --latest                # 不看当前目录，取全局最新的会话
 ```
 
@@ -160,9 +188,11 @@ hop codex --session local_example --desktop --no-git
 
 ### 切回原会话
 
-原会话不会被改动。对于 Codex 桌面会话，以及元数据里有本地 ID 的 Claude Desktop 会话，`hop` 会打印桌面版返回链接，并同时提供 CLI resume 命令作为备用。Claude 的 `claude://code/continue?session=local_...` 是私有链接，已在 Claude Desktop 2.31226.1 上验证，未来可能变化。元数据缺失或会话已归档时，只能使用 CLI resume。每次切换都会向 `~/.hop/links.jsonl` 追加来源和目标客户端信息。新生成的交接文档和链接日志权限为 `0600`；`hop` 不会修改源会话存储。
+原会话不会被改动。对于 Codex 桌面会话，以及元数据里有本地 ID 的 Claude Desktop 会话，`hop` 会打印桌面版返回链接，并同时提供 CLI resume 命令作为备用。Claude 的继续会话 URL 是私有应用路由，未来可能变化。Claude Desktop 缺少本地 ID 元数据或会话已归档时，只提供 CLI resume。每次切换都会向 `~/.hop/links.jsonl` 追加来源和目标客户端信息。新生成的交接文档和链接日志权限为 `0600`；`hop` 不会修改源会话存储。
 
 ## 交接文档里有什么
+
+生成的交接和原始证据可能包含源代码、提示词、工具输出、秘密和本地标识信息。请私密保存，并在分享或向另一个 provider 发送草稿前检查内容。文件权限是访问控制，不是加密；`--dry-run` 仍会写入交接。问题报告指南见 [SECURITY.md](SECURITY.md)。
 
 - **给接手 agent 的说明**：先读子 agent 索引，复述当前状态（包括未完成的委派任务）后等待确认；复用已有结果，修改相关文件前先读对应任务上下文；需要细节时 grep 原始记录；不要 reset 未提交的改动；之前定下的约束继续有效。重新创建未完成任务前，先确认源 agent 已停止修改相同文件。
 - **未解决的失败**：源会话里最后一次运行仍失败（退出码非 0，或执行到一半被打断）的 shell 命令，附退出码、轮次、时间、目录和输出末尾。只收测试/构建/检查类命令，以及最后一轮里的失败；后来跑通的、grep/diff 这类返回 1 的都排除。新 agent 会被要求先重跑：还失败就是要接着修的问题，已通过说明这条过期了。这一节不参与压缩。
@@ -200,7 +230,7 @@ Git 快照禁用文件系统监控钩子、内容过滤器、外部 diff 工具�
    - Codex：把 `response_item` 记录按轮次分组；丢掉 Codex 注入到 user 角色里的内容（`<environment_context>`、AGENTS.md 等）；按 `call_id` 把工具调用和输出配对；遇到 `compacted` 就用压缩摘要替换之前的历史。
    - Claude Code：从最新一条非 sidechain（子 agent）消息开始，沿 `parentUuid` 往回走，rewind 掉的分支不会带上；还原斜杠命令，过滤 system reminder 和各种通知。
 3. **收集相关 agent 记录**：源会话仍由人工交互的根会话决定；子会话作为关联证据收集，不会成为独立源会话候选。Codex 会依据明确的父会话元数据，递归收集活跃和归档会话中的子 agent，并纳入已记录的协作消息和状态。Claude Code/Desktop 会读取标准 `Agent` / `Task` 任务、sidechain 子会话记录、agent 元数据和嵌套父 ID，以及本地桌面工作流日志和报告。没有子会话记录关联的 Claude Desktop 排队任务卡片会保留为带警告的 stub；无法恢复任意团队或云端任务。只读取本地记录，不调用 provider，也不修改源存储。
-4. **拍环境快照**：用 `git` 和 `lsof`。
+4. **拍环境快照**：Git 和 `lsof` 提供可选的仓库和监听进程信息；工具不可用时会有信息缺口。
 5. **生成交接文档和证据包**：紧凑主文档写到 `~/.hop/handoffs/`，尝试用 6 档细节接近 `--budget` 目标；配套证据包写在旁边，不计入该目标，也不会被截断。
 6. **启动**：默认生成脚本放到 `~/.hop/run/`，用 AppleScript 在 iTerm2 或 Terminal 新标签页里执行 CLI；加 `--desktop` 时改为打开预填目标应用提示框的 URL。
 
@@ -216,6 +246,8 @@ Git 快照禁用文件系统监控钩子、内容过滤器、外部 diff 工具�
 - **启动目录不对**：`hop` 给 Codex 传 `-C <cwd>`，给 Claude Code 是先 `cd` 进去再启动。看输出里的「工作目录」那一行，它取的是会话最新的 cwd。
 
 ## 开发
+
+开发环境、合成测试、包检查和发布审核策略见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ```bash
 npm test
@@ -240,8 +272,8 @@ lib/launch.mjs     启动脚本与终端标签页
 
 - 会话内命令：源 agent 还能用的时候，让它自己写一份更完整的交接说明
 - 切回时恢复原会话，并附上这段时间的增量交接
-- 支持 Linux 终端
+- 支持 Linux 新终端标签页启动
 
 ## 许可证
 
-MIT
+MIT。[LICENSE](LICENSE) 保留 0genlab 的上游版权声明。

@@ -1,6 +1,10 @@
 # hop
 
-Hand off an in-progress task between **Codex** and **Claude Code** without losing context.
+Carry local context for an in-progress task between **Codex** and **Claude Code**.
+
+This is the independently maintained [4ortytwo/hop fork](https://github.com/4ortytwo/hop) of [0genlab/hop](https://github.com/0genlab/hop). Fork maintenance and release planning are tracked here. The original project and its MIT authorship remain credited; the related upstream contribution is [PR #6](https://github.com/0genlab/hop/pull/6).
+
+Version 0.2.0 is an unreleased maintenance candidate. See [CHANGELOG.md](CHANGELOG.md) for its scope and limitations.
 
 ```bash
 hop cc       # Codex → Claude Code
@@ -27,25 +31,49 @@ The `!` prefix runs a shell command without calling the model, so it works even 
 
 ## Requirements
 
-- macOS to open a terminal tab or launch a desktop app; `--here` and `--dry-run` work anywhere
-- Node.js ≥ 20
+- Node.js ≥ 22; the supported LTS lines are Node.js 22 and 24
+- macOS for Terminal.app/iTerm2 launching and desktop app launching
+- Linux `--here` (with Bash) and `--dry-run` are intended to be supported. Linux fixture CI is configured but has not yet run for this candidate; desktop launching and new terminal tabs require macOS. Native Windows is unsupported.
 - For the default CLI launch, the target CLI must be installed and on `PATH`. For `--desktop`, install the target desktop app; its CLI does not need to be installed. Source transcripts must be available locally.
 
-There are no npm dependencies.
+There are no npm runtime dependencies. External tools provide these capabilities:
+
+| Tool | When needed |
+|---|---|
+| Bash | CLI launching, including `--here` |
+| Git | Installing from GitHub, repository-wide session matching, and Git snapshots; captures can run without Git. `--no-git` explicitly skips matching and snapshots. |
+| `lsof` | Optional discovery of listening processes; if unavailable or blocked, the listener list can be empty and must not be treated as proof that no server is running. |
+| `sqlite3` | Optional lookup of Codex titles absent from the session index; missing metadata does not hide local sessions. |
+
+Provider session formats and desktop URL handlers can change independently of Hop. Fixture checks cover local parsing and command construction; they do not establish compatibility with every installed app version.
 
 ## Install
 
+The maintained npm package is `@4ortytwo/hop`; its executable is `hop`. The first release is being prepared and has not been published yet. From a reviewed checkout containing this candidate, install locally:
+
 ```bash
-git clone https://github.com/0genlab/hop.git ~/code/hop
-ln -s ~/code/hop/bin/hop.mjs ~/.local/bin/hop   # any directory on your PATH
+npm install -g .
 hop --help
 ```
 
-Or install globally with npm:
+After the first npm release is published, choose one package manager to install it globally:
+
+| Package manager | Command |
+|---|---|
+| npm | `npm install -g @4ortytwo/hop` |
+| [Bun](https://bun.sh/docs/pm/cli/add#--global) | `bun add -g @4ortytwo/hop` |
+| [pnpm](https://pnpm.io/cli/add#--global--g) | `pnpm add -g @4ortytwo/hop` |
+| [Yarn Classic (1.x)](https://classic.yarnpkg.com/en/docs/cli/global) | `yarn global add @4ortytwo/hop` |
+
+The selected manager's global executable directory must be on `PATH`. Installing with Bun does not change Hop's runtime: Node.js 22 or later is still required.
+
+[Modern Yarn (2+)](https://yarnpkg.com/cli/dlx) uses `dlx` for temporary execution instead of a global installation. For example:
 
 ```bash
-npm install -g github:0genlab/hop
+YARN_NODE_LINKER=node-modules yarn dlx --package @4ortytwo/hop hop --help
 ```
+
+This runs Hop once; it does not leave a permanent `hop` command on `PATH`.
 
 ## Usage
 
@@ -58,13 +86,13 @@ hop cc        # continue the latest Codex session here in Claude Code
 hop codex     # continue the latest Claude Code session here in Codex
 ```
 
-`hop` prints what it picked: the source session, working directory and branch, the path to the handoff document (turn count and size), and the command to resume the original session. For example:
+`hop` prints what it picked: the source session, working directory and branch, the path to the handoff document (turn count and size), and the command to resume the original session. Synthetic example:
 
 ```
-Source    Codex 019a… (current dir /Users/you/code/app)
-Workdir   /Users/you/code/app/.worktrees/fix-login  [fix-login]
-Handoff   ~/.hop/handoffs/20260923-101500-codex-to-claude.md (12 turns, 31.8 KB)
-Go back   codex resume 019a…
+Source    Codex session-example (current dir /path/to/demo)
+Workdir   /path/to/demo/.worktrees/example  [example]
+Handoff   ~/.hop/handoffs/<capture-stem>.md (12 turns, 31.8 KB)
+Go back   codex resume session-example
 ```
 
 Then it opens a new tab and starts the target agent with this prompt:
@@ -96,8 +124,8 @@ Claude Desktop treats a linked folder as untrusted and asks you to confirm it. C
 
 ```bash
 hop cc --list                  # show session ID, client, cwd and available title
-hop cc --session 019a1b2c-…    # by session ID, or pass a path to the .jsonl file
-hop codex --session local_abc123  # Claude Desktop source session ID
+hop cc --session session-example   # synthetic ID; replace with your ID or .jsonl path
+hop codex --session local_example  # synthetic Claude Desktop source ID
 hop cc --latest                # ignore the directory; take the newest session anywhere
 ```
 
@@ -160,9 +188,11 @@ hop codex --session local_example --desktop --no-git
 
 ### Going back
 
-The original session is left untouched. `hop` prints a native return link for Codex Desktop sessions and for Claude Desktop sessions when their local ID metadata is available; it also prints a CLI resume command as a fallback. Claude's `claude://code/continue?session=local_...` route is private and was version-verified with Claude Desktop 2.31226.1, so it may change. If the metadata is missing or the session is archived, only the CLI resume command is available. Each hop is appended to `~/.hop/links.jsonl` with its source and destination clients. Newly generated handoff and link-log files use mode `0600`; `hop` does not modify the source session store.
+The original session is left untouched. `hop` prints a native return link for Codex Desktop sessions and for Claude Desktop sessions when their local ID metadata is available; it also prints a CLI resume command as a fallback. Claude's continuation URL is a private app route and may change. For Claude Desktop, missing local ID metadata or an archived session leaves only the CLI resume command. Each hop is appended to `~/.hop/links.jsonl` with its source and destination clients. Newly generated handoff and link-log files use mode `0600`; `hop` does not modify the source session store.
 
 ## What gets carried over
+
+Generated handoffs and raw evidence can contain source code, prompts, tool output, secrets, and local identifiers. Keep captures private and review them before sharing or sending a draft to another provider. File permissions are access controls, not encryption. `--dry-run` still writes a capture. See [SECURITY.md](SECURITY.md) for reporting guidance.
 
 The handoff document is Markdown and contains:
 
@@ -204,7 +234,7 @@ Git snapshots disable filesystem-monitor hooks, content filters, external diff t
    - Codex: `response_item` records are grouped into turns. Content Codex injects into the user role (`<environment_context>`, AGENTS.md, and similar) is dropped. Tool calls are paired with their outputs by `call_id`. A `compacted` record resets the history.
    - Claude Code: `hop` walks `parentUuid` back from the latest non-sidechain message, so branches you rewound past are excluded. It restores slash commands and filters system reminders and notifications.
 3. **Collect related agent traces.** The selected root remains a human-interactive session; child sessions are collected as related evidence rather than standalone source candidates. For Codex, parent metadata links children recursively across active and archived sessions, with recorded collaboration messages and status. For Claude Code/Desktop, collection uses standard `Agent`/`Task` assignments, sidechain transcripts, agent metadata and nested parent IDs, plus local desktop workflow journals and reports. Queued Claude Desktop task chips without a child transcript association are kept as warned stubs; arbitrary team or cloud tasks cannot be recovered. Only local records are read, with no provider calls or source-store changes.
-4. **Snapshot the environment** with `git` and `lsof`.
+4. **Snapshot the environment.** Git and `lsof` add optional repository and listener information; unavailable tools leave gaps.
 5. **Render** the compact handoff to `~/.hop/handoffs/`, trying six detail levels to approach `--budget`, and write the companion evidence bundle beside it. The bundle is not counted or truncated by `--budget`.
 6. **Launch** the target CLI through a small script in `~/.hop/run/`, opened in a new iTerm2 or Terminal tab via AppleScript; with `--desktop`, open a URL that prefills the target app's composer instead.
 
@@ -220,6 +250,8 @@ Both session formats are private and undocumented, and either tool may change th
 - **Codex starts in the wrong directory.** `hop` passes `-C <cwd>` to Codex and `cd`s into the directory before starting Claude Code. Check the `Workdir` line in the output. It uses the session's latest cwd.
 
 ## Development
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, synthetic fixtures, package checks, and release review policy.
 
 ```bash
 npm test
@@ -244,8 +276,8 @@ lib/launch.mjs     launch script + terminal tab
 
 - An in-session command that lets the source agent write its own, richer handoff while it still works
 - Resume the original session with an incremental handoff when you hop back
-- Linux terminal support
+- Linux new-terminal-tab launching
 
 ## License
 
-MIT
+MIT. The [LICENSE](LICENSE) retains the upstream copyright notice for 0genlab.

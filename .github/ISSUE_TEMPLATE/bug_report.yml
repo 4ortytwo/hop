@@ -1,0 +1,28 @@
+name: Bug report
+description: Report a reproducible Hop problem using synthetic data.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please reproduce the problem with synthetic data. Do not attach handoff bundles, provider logs, desktop metadata, credentials, private project details, or personal paths. See SECURITY.md for sensitive reports.
+  - type: input
+    id: versions
+    attributes:
+      label: Versions and platform
+      description: Hop version or commit, Node version, operating system, and relevant agent app/CLI versions.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Include the command and a minimal synthetic example. Replace identifying values before posting.
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+      description: Describe the difference and include sanitized error text if useful.
+    validations:
+      required: true
