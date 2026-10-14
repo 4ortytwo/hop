@@ -4,16 +4,16 @@ This repository independently maintains the [4ortytwo/hop fork](https://github.c
 
 ## Development setup
 
-Use Node.js 22 or 24. Clone the maintenance branch for local development:
+Use Node.js 22 or 24. Clone the repository's default branch for local development:
 
 ```bash
-git clone --branch feat/maintained-release https://github.com/4ortytwo/hop.git
+git clone https://github.com/4ortytwo/hop.git
 cd hop
 node bin/hop.mjs --help
 npm test
 ```
 
-The maintenance changes are an unpublished candidate on `feat/maintained-release`; `main` does not yet contain them. From this maintenance checkout, also run:
+The unpublished 0.2.0 maintenance candidate is on `main`. From this checkout, also run:
 
 ```bash
 npm run check:package
@@ -41,4 +41,4 @@ When a reporting channel is available, include the Hop version, Node version, op
 
 Release preparation may run tests, package checks, and CI. None of these checks publishes automatically. Before publication, a human must review the exact package archive, source revision, package name and ownership, registry metadata, installation instructions, changelog, and all other public text. Rebuild and re-review the package if any reviewed input changes.
 
-The release checklist also includes confirming that fork Issues and the private vulnerability reporting route remain available, and updating candidate branch links and checkout instructions if the maintenance changes are promoted to `main`. Retain the upstream license and distinguish this fork's support claims from upstream behavior. No registry publication should proceed while package ownership or that review is unresolved.
+The release checklist also includes confirming that fork Issues and the private vulnerability reporting route remain available. Retain the upstream license and distinguish this fork's support claims from upstream behavior. No registry publication should proceed while package ownership or that review is unresolved.

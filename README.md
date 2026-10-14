@@ -192,7 +192,7 @@ The original session is left untouched. `hop` prints a native return link for Co
 
 ## What gets carried over
 
-Generated handoffs and raw evidence can contain source code, prompts, tool output, secrets, and local identifiers. Keep captures private and review them before sharing or sending a draft to another provider. File permissions are access controls, not encryption. `--dry-run` still writes a capture. See [SECURITY.md](https://github.com/4ortytwo/hop/blob/feat/maintained-release/SECURITY.md) for reporting guidance.
+Generated handoffs and raw evidence can contain source code, prompts, tool output, secrets, and local identifiers. Keep captures private and review them before sharing or sending a draft to another provider. File permissions are access controls, not encryption. `--dry-run` still writes a capture. See [SECURITY.md](https://github.com/4ortytwo/hop/blob/main/SECURITY.md) for reporting guidance.
 
 The handoff document is Markdown and contains:
 
@@ -251,7 +251,7 @@ Both session formats are private and undocumented, and either tool may change th
 
 ## Development
 
-See [CONTRIBUTING.md](https://github.com/4ortytwo/hop/blob/feat/maintained-release/CONTRIBUTING.md) for setup, synthetic fixtures, package checks, and release review policy.
+See [CONTRIBUTING.md](https://github.com/4ortytwo/hop/blob/main/CONTRIBUTING.md) for setup, synthetic fixtures, package checks, and release review policy.
 
 ```bash
 npm test
