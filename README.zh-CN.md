@@ -4,7 +4,7 @@
 
 本仓库是 [0genlab/hop](https://github.com/0genlab/hop) 的独立维护分支 [4ortytwo/hop](https://github.com/4ortytwo/hop)。本分支的维护和发布计划在这里跟踪；保留原项目及其 MIT 作者归属。相关的上游贡献见 [PR #6](https://github.com/0genlab/hop/pull/6)。
 
-0.2.0 目前是尚未发布的维护候选版本。范围和限制见 [CHANGELOG.md](CHANGELOG.md)。
+0.2.0 是 `main` 上尚未发布的候选版本，新增桌面会话发现、预填的桌面草稿、相关 agent 证据和 capture 清理。范围和限制见 [CHANGELOG.md](CHANGELOG.md)。
 
 ```bash
 hop cc       # Codex → Claude Code
@@ -49,31 +49,33 @@ Provider 的会话格式和桌面 URL 处理程序可能独立于 Hop 发生变�
 
 ## 安装
 
-维护版本的 npm 包名为 `@4ortytwo/hop`，可执行命令仍为 `hop`。首个版本正在准备中，尚未发布。在包含本候选版本且已审查的本地检出目录中安装：
+0.2.0 尚未发布到 npm。目前请从公开分支仓库的 `main` 安装；包名为 `@4ortytwo/hop`，可执行命令仍为 `hop`。选择一个包管理器：
+
+| 包管理器 | 命令 |
+|---|---|
+| npm | `npm install -g 'git+https://github.com/4ortytwo/hop.git#main'` |
+| [Bun](https://bun.sh/docs/pm/cli/add#--global) | `bun add -g 'git+https://github.com/4ortytwo/hop.git#main'` |
+| [pnpm](https://pnpm.io/cli/add#--global--g) | `pnpm add -g 'git+https://github.com/4ortytwo/hop.git#main'` |
+| [Yarn Classic（1.x）](https://classic.yarnpkg.com/en/docs/cli/global) | `yarn global add 'git+https://github.com/4ortytwo/hop.git#main'` |
+
+所选包管理器的全局可执行文件目录需要在 `PATH` 中。使用 Bun 安装不会改变 Hop 的运行时：仍然需要 Node.js 22 或更新版本。
+
+`main` 会变化。如需可重复的安装，请将 Git URL 中的 `main` 替换为已审查的完整提交 SHA。也可从已审查的本地检出目录安装：
 
 ```bash
 npm install -g .
 hop --help
 ```
 
-首个 npm 版本发布后，选择一个包管理器进行全局安装：
-
-| 包管理器 | 命令 |
-|---|---|
-| npm | `npm install -g @4ortytwo/hop` |
-| [Bun](https://bun.sh/docs/pm/cli/add#--global) | `bun add -g @4ortytwo/hop` |
-| [pnpm](https://pnpm.io/cli/add#--global--g) | `pnpm add -g @4ortytwo/hop` |
-| [Yarn Classic（1.x）](https://classic.yarnpkg.com/en/docs/cli/global) | `yarn global add @4ortytwo/hop` |
-
-所选包管理器的全局可执行文件目录需要在 `PATH` 中。使用 Bun 安装不会改变 Hop 的运行时：仍然需要 Node.js 22 或更新版本。
-
 [新版 Yarn（2+）](https://yarnpkg.com/cli/dlx) 使用 `dlx` 临时执行，而不是全局安装。例如：
 
 ```bash
-YARN_NODE_LINKER=node-modules yarn dlx --package @4ortytwo/hop hop --help
+YARN_NODE_LINKER=node-modules yarn dlx --package '@4ortytwo/hop@git+https://github.com/4ortytwo/hop.git#main' hop --help
 ```
 
 该命令仅运行一次 Hop，不会在 `PATH` 中保留永久的 `hop` 命令。
+
+未来发布到 npm 前，必须完成手动 [npm 发布门槛](https://github.com/4ortytwo/hop/blob/main/CONTRIBUTING.md#npm-launch-gate)，包括将这里的主要安装说明改为 registry 安装命令。
 
 ## 使用手册
 

@@ -4,7 +4,7 @@ Carry local context for an in-progress task between **Codex** and **Claude Code*
 
 This is the independently maintained [4ortytwo/hop fork](https://github.com/4ortytwo/hop) of [0genlab/hop](https://github.com/0genlab/hop). Fork maintenance and release planning are tracked here. The original project and its MIT authorship remain credited; the related upstream contribution is [PR #6](https://github.com/0genlab/hop/pull/6).
 
-Version 0.2.0 is an unreleased maintenance candidate. See [CHANGELOG.md](CHANGELOG.md) for its scope and limitations.
+Version 0.2.0 is an unpublished candidate on `main`. It adds desktop session discovery, prefilled desktop drafts, related agent evidence, and capture cleanup. See [CHANGELOG.md](CHANGELOG.md) for scope and limitations.
 
 ```bash
 hop cc       # Codex → Claude Code
@@ -49,31 +49,33 @@ Provider session formats and desktop URL handlers can change independently of Ho
 
 ## Install
 
-The maintained npm package is `@4ortytwo/hop`; its executable is `hop`. The first release is being prepared and has not been published yet. From a reviewed checkout containing this candidate, install locally:
+Version 0.2.0 has not been published to npm. Install from the public fork's `main` branch for now; the package name is `@4ortytwo/hop` and its executable is `hop`. Choose one package manager:
+
+| Package manager | Command |
+|---|---|
+| npm | `npm install -g 'git+https://github.com/4ortytwo/hop.git#main'` |
+| [Bun](https://bun.sh/docs/pm/cli/add#--global) | `bun add -g 'git+https://github.com/4ortytwo/hop.git#main'` |
+| [pnpm](https://pnpm.io/cli/add#--global--g) | `pnpm add -g 'git+https://github.com/4ortytwo/hop.git#main'` |
+| [Yarn Classic (1.x)](https://classic.yarnpkg.com/en/docs/cli/global) | `yarn global add 'git+https://github.com/4ortytwo/hop.git#main'` |
+
+The selected manager's global executable directory must be on `PATH`. Installing with Bun does not change Hop's runtime: Node.js 22 or later is still required.
+
+`main` can change. For a reproducible installation, replace `main` in the Git URL with a reviewed full commit SHA. To install from a reviewed local checkout instead:
 
 ```bash
 npm install -g .
 hop --help
 ```
 
-After the first npm release is published, choose one package manager to install it globally:
-
-| Package manager | Command |
-|---|---|
-| npm | `npm install -g @4ortytwo/hop` |
-| [Bun](https://bun.sh/docs/pm/cli/add#--global) | `bun add -g @4ortytwo/hop` |
-| [pnpm](https://pnpm.io/cli/add#--global--g) | `pnpm add -g @4ortytwo/hop` |
-| [Yarn Classic (1.x)](https://classic.yarnpkg.com/en/docs/cli/global) | `yarn global add @4ortytwo/hop` |
-
-The selected manager's global executable directory must be on `PATH`. Installing with Bun does not change Hop's runtime: Node.js 22 or later is still required.
-
 [Modern Yarn (2+)](https://yarnpkg.com/cli/dlx) uses `dlx` for temporary execution instead of a global installation. For example:
 
 ```bash
-YARN_NODE_LINKER=node-modules yarn dlx --package @4ortytwo/hop hop --help
+YARN_NODE_LINKER=node-modules yarn dlx --package '@4ortytwo/hop@git+https://github.com/4ortytwo/hop.git#main' hop --help
 ```
 
 This runs Hop once; it does not leave a permanent `hop` command on `PATH`.
+
+Future npm publication must pass the manual [npm launch gate](https://github.com/4ortytwo/hop/blob/main/CONTRIBUTING.md#npm-launch-gate), including replacing these primary instructions with registry installation commands.
 
 ## Usage
 
